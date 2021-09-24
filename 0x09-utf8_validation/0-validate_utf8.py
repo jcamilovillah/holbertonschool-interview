@@ -1,20 +1,27 @@
 #!/usr/bin/python3
+""" validate UTF-8 module"""
+
+
 def validUTF8(data):
-    counter = 0
-    for num in data:
-        mask = 0b10000000
-        if not counter:
-            while (mask & num):
-                counter += 1
-                mask >>= 1
-            if counter > 4:
+    """method that determines if a given data set
+    represents a valid UTF-8 encoding"""
+
+    nbytes = 0
+    m1 = 1 << 7
+    m2 = 1 << 6
+
+    for i in data:
+        m = 1 << 7
+        if nbytes == 0:
+            while m & i:
+                nbytes += 1
+                m = m >> 1
+            if nbytes == 0:
+                continue
+            if nbytes == 1 or nbytes > 4:
                 return False
-            if counter:
-                counter -= 1
-                if counter == 0:
-                    return False
-        elif counter > 0:
-            if num >> 6 != 2:
+        else:
+            if not (i & m1 and not (i & m2)):
                 return False
-            counter -= 1
-    return not counter
+        nbytes -= 1
+    return nbytes == 0
